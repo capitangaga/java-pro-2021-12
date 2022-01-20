@@ -1,0 +1,23 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow'
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+dependencies {
+    implementation 'com.google.guava:guava'
+    implementation 'org.apache.logging.log4j:log4j-core'
+}
+
+shadowJar {
+    archiveBaseName.set('hw01-gradle-fat')
+    archiveVersion.set('0.1')
+    archiveClassifier.set('')
+    manifest {
+        attributes 'Main-Class': 'ru.kirillgolovko.otus.javapro.HelloOtus'
+    }
+}
+
+tasks.build.dependsOn tasks.shadowJar
