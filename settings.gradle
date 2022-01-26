@@ -1,2 +1,3 @@
 rootProject.name = 'java_pro_2021'
 include 'hw01-gradle'
+include 'L04-generics'
