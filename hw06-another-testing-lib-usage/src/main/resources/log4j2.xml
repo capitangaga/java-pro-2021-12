@@ -1,0 +1,13 @@
+<Configuration xmlns="http://logging.apache.org/log4j/2.0/config" status="error" packages="ru.kirillgolovko.otus.javapro">
+    <Appenders>
+        <Console name="STDOUT" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d %p %c [%t] %m %ex%n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Logger name="ru.kirillgolovko.otus.javapro" level="info"/>
+        <Root level="error">
+            <AppenderRef ref="STDOUT"/>
+        </Root>
+    </Loggers>
+</Configuration>
