@@ -2,6 +2,7 @@ package ru.kirillgolovko.otus.javapro;
 
 import ru.kirillgolovko.otus.javapro.atl.annotations.After;
 import ru.kirillgolovko.otus.javapro.atl.annotations.Before;
+import ru.kirillgolovko.otus.javapro.atl.annotations.Disabled;
 import ru.kirillgolovko.otus.javapro.atl.annotations.Test;
 
 public class TestClass {
@@ -22,6 +23,12 @@ public class TestClass {
 
     @Test(name = "A этот сломаем")
     public void testBroken() {
+        throw new RuntimeException("Я сломалсо");
+    }
+
+    @Test(name = "A этот выключим")
+    @Disabled
+    public void testDisabled() {
         throw new RuntimeException("Я сломалсо");
     }
 

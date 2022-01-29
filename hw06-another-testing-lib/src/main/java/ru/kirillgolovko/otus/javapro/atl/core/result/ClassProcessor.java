@@ -11,8 +11,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Supplier;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import ru.kirillgolovko.otus.javapro.atl.annotations.After;
 import ru.kirillgolovko.otus.javapro.atl.annotations.Before;
 import ru.kirillgolovko.otus.javapro.atl.annotations.Disabled;
