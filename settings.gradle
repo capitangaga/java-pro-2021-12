@@ -1,3 +1,5 @@
 rootProject.name = 'java_pro_2021'
 include 'hw01-gradle'
 include 'L04-generics'
+include 'hw06-another-testing-lib'
+include 'hw06-another-testing-lib-usage'
