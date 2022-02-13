@@ -1,0 +1,22 @@
+plugins {
+    id 'java'
+    id 'com.github.johnrengelman.shadow'
+}
+
+dependencies {
+    implementation 'org.ow2.asm:asm-commons'
+}
+
+task shadowDemo(type: Jar, dependsOn: shadowJar) {
+    archiveBaseName.set('demo')
+    manifest {
+        attributes 'Main-Class': 'ru.kirillgolovko.otus.javapro.asm.demo.DemoMain'
+        attributes 'Premain-Class': 'ru.kirillgolovko.otus.javapro.asm.demo.Agent'
+    }
+    from zipTree(shadowJar.archiveFile)
+}
+
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
+
+tasks.build.dependsOn tasks.shadowDemo
