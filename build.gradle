@@ -30,6 +30,7 @@ allprojects {
             dependency "com.google.guava:guava:${Versions.guava}"
             dependency "it.unimi.dsi:fastutil:${Versions.fastutil}"
             dependency "org.ow2.asm:asm-commons:${Versions.asm}"
+            dependency "org.glassfish:javax.json:${Versions.json}"
         }
     }
 }

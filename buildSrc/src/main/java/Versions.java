@@ -4,4 +4,5 @@ public interface Versions {
     String log4j = "2.17.1";
     String fastutil = "8.5.6";
     String asm = "9.2";
+    String json = "1.1.4";
 }
