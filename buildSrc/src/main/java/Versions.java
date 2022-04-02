@@ -5,4 +5,5 @@ public interface Versions {
     String fastutil = "8.5.6";
     String asm = "9.2";
     String json = "1.1.4";
+    String testcontainers = "1.15.3";
 }
