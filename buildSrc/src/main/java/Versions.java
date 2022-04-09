@@ -6,4 +6,6 @@ public interface Versions {
     String asm = "9.2";
     String json = "1.1.4";
     String testcontainers = "1.15.3";
+    String jetty = "11.0.7";
+    String freemarker = "2.3.31";
 }
