@@ -31,6 +31,9 @@ allprojects {
             dependency "it.unimi.dsi:fastutil:${Versions.fastutil}"
             dependency "org.ow2.asm:asm-commons:${Versions.asm}"
             dependency "org.glassfish:javax.json:${Versions.json}"
+
+            dependency("org.testcontainers:junit-jupiter:${Versions.testcontainers}")
+            dependency("org.testcontainers:postgresql:${Versions.testcontainers}")
         }
     }
 }
