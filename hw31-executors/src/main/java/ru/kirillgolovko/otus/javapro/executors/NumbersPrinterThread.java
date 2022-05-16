@@ -4,34 +4,33 @@ package ru.kirillgolovko.otus.javapro.executors;
  * @author kirillgolovko
  */
 public class NumbersPrinterThread extends Thread {
-    private final Object lock;
-    private final boolean slave;
     private final Iterable<Integer> numbersSequence;
+    private final FlipFlop flipFlop;
 
-    public NumbersPrinterThread(String name, Object lock, boolean slave, Iterable<Integer> numbersSequence) {
+    public NumbersPrinterThread(
+            String name,
+            Iterable<Integer> numbersSequence,
+            FlipFlop flipFlop)
+    {
         super(name);
-        this.lock = lock;
-        this.slave = slave;
         this.numbersSequence = numbersSequence;
+        this.flipFlop = flipFlop;
     }
 
 
     @Override
     public void run() {
         try {
-            // начинает кто-то один
-            if (slave) {
-                synchronized (lock) {
-                    lock.wait();
-                }
-            }
-
             for (int number : numbersSequence) {
-                System.out.printf("Thread %s - %d%n", super.getName(), number);
-                synchronized (lock) {
-                    lock.notify();
-                    lock.wait();
+                synchronized (flipFlop) {
+                    while (!flipFlop.isMyTurn(getName())) {
+                        flipFlop.wait();
+                    }
+                    System.out.printf("Thread %s - %d%n", super.getName(), number);
+                    flipFlop.flip();
+                    flipFlop.notifyAll();
                 }
+
             }
 
         } catch (InterruptedException interruption) {
