@@ -43,6 +43,7 @@ allprojects {
             dependency("org.eclipse.jetty:jetty-io:${Versions.jetty}")
             dependency("org.eclipse.jetty:jetty-util:${Versions.jetty}")
             dependency("org.freemarker:freemarker:${Versions.freemarker}")
+            dependency("javax.persistence:persistence-api:${Versions.jpa}")
         }
     }
 }
