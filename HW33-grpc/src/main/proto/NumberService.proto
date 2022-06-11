@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package ru.kirillgolovko.otus.java.hw33.generated;
+
+option java_multiple_files = true;
+
+message NumbersRequest {
+  int64 from = 1;
+  int64 to = 2;
+}
+
+message NextNumber {
+  int64 number = 1;
+}
+
+service NumberService {
+  rpc streamNumbers(NumbersRequest) returns (stream NextNumber);
+}
