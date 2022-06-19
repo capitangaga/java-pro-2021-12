@@ -19,4 +19,28 @@ public class Point {
     public double getY() {
         return y;
     }
+
+    public Point minus(Point point) {
+        return new Point(x - point.getX(), y - point.getY());
+    }
+
+    public Point plus(Point point) {
+        return new Point(x + point.getX(), y + point.getY());
+    }
+
+    public double dot(Point point) {
+        return x * point.x + y * point.y;
+    }
+
+    public Point mult(double a) {
+        return new Point(x * a, y * a);
+    }
+
+    @Override
+    public String toString() {
+        return "Point{" +
+                "x=" + x +
+                ", y=" + y +
+                '}';
+    }
 }
