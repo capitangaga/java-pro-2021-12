@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import org.springframework.web.util.UriComponentsBuilder;
 import ru.kirillgolovko.cw.common.game.server.GameServer;
 import ru.kirillgolovko.cw.common.game.server.GameServerSettings;
 import ru.kirillgolovko.cw.common.model.GameFieldState;
@@ -31,17 +32,18 @@ public class TestMain {
 //            Thread.sleep(1000);
 //        }
 
-        DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
-        Terminal left = defaultTerminalFactory.createTerminal();
-        Terminal right = defaultTerminalFactory.createTerminal();
-        TerminalGame leftGame = new TerminalGame(left);
-        TerminalGame rightGame = new TerminalGame(right);
-        leftGame.startGame();
-        rightGame.startGame();
-        GameServer gameServer = new GameServer(leftGame, rightGame, "", GameServerSettings.DEFAULT_SETTINGS);
-        gameServer.init();
-        gameServer.start();
-        gameServer.join();
+//        DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
+//        Terminal left = defaultTerminalFactory.createTerminal();
+//        Terminal right = defaultTerminalFactory.createTerminal();
+//        TerminalGame leftGame = new TerminalGame(left);
+//        TerminalGame rightGame = new TerminalGame(right);
+////        leftGame.startGame();
+////        rightGame.startGame();
+//        GameServer gameServer = new GameServer(leftGame, rightGame, "", GameServerSettings.DEFAULT_SETTINGS);
+//        gameServer.init();
+//        gameServer.start();
+//        gameServer.join();
+
 
     }
 }

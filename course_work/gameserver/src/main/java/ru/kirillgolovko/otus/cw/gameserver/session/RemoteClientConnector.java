@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.function.Consumer;
+import java.util.logging.Logger;
 
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ru.kirillgolovko.cw.common.game.client.GameClient;
@@ -15,7 +16,7 @@ import ru.kirillgolovko.cw.common.model.KeyboardEvent;
  * @author kirillgolovko
  */
 public class RemoteClientConnector extends Thread implements GameClient {
-
+    private static final Logger logger = Logger.getLogger(RemoteClientConnector.class.getName());
     private final List<Consumer<KeyboardEvent>> consumers = new ArrayList<>(1);
     private final BlockingQueue<GameFieldState> statesQueue = new LinkedBlockingQueue<>(100);
 
@@ -29,12 +30,12 @@ public class RemoteClientConnector extends Thread implements GameClient {
 
     @Override
     public void startGame() {
-        super.start();
+        this.start();
     }
 
     @Override
     public void stopGame() {
-        super.interrupt();
+        this.interrupt();
     }
 
     @Override
@@ -54,6 +55,7 @@ public class RemoteClientConnector extends Thread implements GameClient {
 
     @Override
     public void run() {
+        logger.info("Started sender" + stateTopic);
         while (!this.isInterrupted()) {
             try {
                 GameFieldState nextState = statesQueue.take();
@@ -65,7 +67,7 @@ public class RemoteClientConnector extends Thread implements GameClient {
     }
 
     public void nextKeyboardEvent(KeyboardEvent event) {
-        for(var consumer : consumers) {
+        for (var consumer : consumers) {
             consumer.accept(event);
         }
     }

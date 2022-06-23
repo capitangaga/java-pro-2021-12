@@ -6,11 +6,11 @@ package ru.kirillgolovko.cw.common.model;
 public class GameFieldState {
     public static final GameFieldState DEFAULT_STATE = new GameFieldState(new Point(0.001, 0.001), 0.5, 0.5, 0, 0);
 
-    private final Point ballPosition;
-    private final double leftHandle;
-    private final double rightHandle;
-    private final int leftScore;
-    private final int rightScore;
+    private Point ballPosition;
+    private double leftHandle;
+    private double rightHandle;
+    private int leftScore;
+    private int rightScore;
 
     public GameFieldState(Point ballPosition, double leftHandle, double rightHandle, int leftScore, int rightScore) {
         this.ballPosition = ballPosition;
@@ -18,6 +18,10 @@ public class GameFieldState {
         this.rightHandle = rightHandle;
         this.leftScore = leftScore;
         this.rightScore = rightScore;
+    }
+
+    public GameFieldState() {
+
     }
 
     public Point getBallPosition() {

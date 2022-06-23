@@ -12,6 +12,10 @@ public class KeyboardEvent {
         this.eventType = eventType;
     }
 
+    public KeyboardEvent() {
+        this(0, KeyboardEventType.ARROW_UP);
+    }
+
     public long getMillis() {
         return millis;
     }

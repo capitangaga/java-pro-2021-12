@@ -33,12 +33,18 @@ public class StompClientConnector implements StompSessionHandler {
     @Override
     public void afterConnected(StompSession session, StompHeaders connectedHeaders) {
         this.session = session;
+        String readEndpoint = getReadEndpoint();
+        System.out.println(readEndpoint);
+        session.subscribe(readEndpoint, this);
         gameClient.addKeyboardEventsConsumer(event -> session.send(getPushEndpoint(), event));
         gameClient.startGame();
     }
 
     private String getPushEndpoint() {
-        return String.format("/app/keyboard_events/%s/%s", session, side);
+        return String.format("/app/keyboard_events/%s/%s", sessionId, side);
+    }
+    private String getReadEndpoint() {
+        return String.format(String.format("/topic/state/%s/%s", sessionId, side));
     }
 
     @Override
@@ -49,12 +55,12 @@ public class StompClientConnector implements StompSessionHandler {
             byte[] payload,
             Throwable exception)
     {
-
+        exception.printStackTrace();
     }
 
     @Override
     public void handleTransportError(StompSession session, Throwable exception) {
-
+        exception.printStackTrace();
     }
 
     @Override

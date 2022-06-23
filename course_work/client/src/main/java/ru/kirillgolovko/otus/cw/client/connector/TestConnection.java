@@ -18,6 +18,7 @@ import ru.kirillgolovko.otus.cw.client.cli.TerminalGame;
  * @author kirillgolovko
  */
 public class TestConnection {
+    private static final String CONNECT_URL = "ws://localhost:8080/connect?game_session_id={session}&side={side}";
     public static void main(String[] args) throws InterruptedException , IOException {
 
         DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
@@ -31,7 +32,10 @@ public class TestConnection {
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        stompClient.connect("ws://localhost:8080/connect", new StompClientConnector(rightGame, "1", "r"));
+        String session = "1";
+
+        stompClient.connect(CONNECT_URL, new StompClientConnector(rightGame, "1", "r"), session, "r");
+        stompClient.connect(CONNECT_URL, new StompClientConnector(leftGame, "1", "l"), session, "l");
 //        Thread.sleep(100000);
     }
 }
