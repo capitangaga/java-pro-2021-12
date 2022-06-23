@@ -171,7 +171,7 @@ public class TerminalGame implements GameClient {
         int tHeight = terminalSize.getRows() - 2;
 
         int newX = (int) Math.round(tWidth * point.getX());
-        int newY = (int) (1 + Math.round(tHeight * point.getY()));
+        int newY = (int) (1 + Math.round(tHeight * (1 - point.getY())));
 
         return new TerminalPosition(newX, newY);
     }

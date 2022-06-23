@@ -1,8 +1,10 @@
 package ru.kirillgolovko.cw.common.game.server;
 
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import ru.kirillgolovko.cw.common.MathUtils;
 import ru.kirillgolovko.cw.common.Utils;
 import ru.kirillgolovko.cw.common.game.client.GameClient;
 import ru.kirillgolovko.cw.common.model.GameFieldState;
@@ -14,6 +16,7 @@ import ru.kirillgolovko.cw.common.model.Point;
  * @author kirillgolovko
  */
 public class GameServer extends Thread {
+    private static final Random random = new Random();
 
     private final GameClient leftClient;
     private final GameClient rightClient;
@@ -28,6 +31,9 @@ public class GameServer extends Thread {
 
     private double leftHandlePos = 0.5;
     private double rightHandlePos = 0.5;
+
+    private int rightScore = 0;
+    private int leftScore = 0;
 
     private long lastCall;
 
@@ -45,12 +51,20 @@ public class GameServer extends Thread {
         this.gameServerSettings = gameServerSettings;
         leftClientEvents = new ConcurrentLinkedQueue<>();
         rightClientEvents = new ConcurrentLinkedQueue<>();
+        ballVector = getInitialMovement();
 
     }
 
     public void init() {
         leftClient.addKeyboardEventsConsumer(event -> leftClientEvents.add(event));
         rightClient.addKeyboardEventsConsumer(event -> rightClientEvents.add(event));
+        leftClient.startGame();
+        rightClient.startGame();
+    }
+
+    public void shutdown() {
+        leftClient.stopGame();
+        rightClient.stopGame();
     }
 
     private double calcNewHandlePosition(ConcurrentLinkedQueue<KeyboardEvent> queue, double previousPosition) {
@@ -72,8 +86,64 @@ public class GameServer extends Thread {
         return previousPosition;
     }
 
-    private void moveBall() {
+    private void moveBall(long lastCall, long now) {
+        Point nextPoint = ballPosition.plus(ballVector.mult(now - lastCall));
+        if (nextPoint.getX() < 0) {
+            rightScore++;
+            restartGame();
+            return;
+        }
+        if (nextPoint.getX() > 1) {
+            leftScore++;
+            restartGame();
+            return;
+        }
 
+        if (nextPoint.getY() < 0) {
+            ballVector = MathUtils.mirrorVec(ballVector, nextPoint, new Point(nextPoint.getX(), 1));
+            ballPosition = nextPoint.plus(ballVector.mult(now - lastCall));
+            return;
+        }
+
+        if (nextPoint.getY() > 1) {
+            ballVector = MathUtils.mirrorVec(ballVector, nextPoint, new Point(nextPoint.getX(), 0));
+            ballPosition = nextPoint.plus(ballVector.mult(now - lastCall));
+            return;
+        }
+
+        Point leftPadCenter = new Point(0, leftHandlePos);
+        if (mirrorFromPad(lastCall, now, nextPoint, leftPadCenter)) {
+            return;
+        }
+
+        Point rightPadCenter = new Point(1, rightHandlePos);
+        if(mirrorFromPad(lastCall, now, nextPoint, rightPadCenter)) {
+            return;
+        }
+
+        ballPosition = nextPoint;
+
+    }
+
+    private boolean mirrorFromPad(long lastCall, long now, Point nextPoint, Point rightPadCenter) {
+        if (MathUtils.pointInCircle(rightPadCenter, gameServerSettings.padRadius, nextPoint)) {
+            Point circleAndLineCrossing = MathUtils
+                    .findCircleAndLineCrossing(rightPadCenter, gameServerSettings.padRadius, ballPosition, nextPoint);
+            ballVector = MathUtils.mirrorVec(ballVector, rightPadCenter, circleAndLineCrossing);
+            ballPosition = ballPosition.plus(ballVector.mult(now - lastCall));
+            return true;
+        }
+        return false;
+    }
+
+    private void restartGame() {
+        ballPosition = new Point(.5, .5);
+        ballVector = getInitialMovement();
+    }
+
+    private Point getInitialMovement() {
+        boolean dir = random.nextBoolean();
+        return dir ? new Point(gameServerSettings.ballSpeed, 0) : new Point(-gameServerSettings.ballSpeed, 0);
     }
 
     @Override
@@ -82,9 +152,10 @@ public class GameServer extends Thread {
         while (!Thread.currentThread().isInterrupted()) {
             leftHandlePos = calcNewHandlePosition(leftClientEvents, leftHandlePos);
             rightHandlePos = calcNewHandlePosition(rightClientEvents, rightHandlePos);
-
-
-            GameFieldState nextState = new GameFieldState(ballPosition, leftHandlePos, rightHandlePos, 0, 0);
+            long now = System.currentTimeMillis();
+            moveBall(lastCall, now);
+            lastCall = now;
+            GameFieldState nextState = new GameFieldState(ballPosition, leftHandlePos, rightHandlePos, leftScore, rightScore);
             leftClient.updateFieldState(nextState);
             rightClient.updateFieldState(nextState);
             try {

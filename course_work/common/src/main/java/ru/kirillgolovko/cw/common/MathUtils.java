@@ -3,7 +3,7 @@ package ru.kirillgolovko.cw.common;
 import ru.kirillgolovko.cw.common.model.Point;
 
 public class MathUtils {
-    private static double EPS = Math.pow(10, -7);
+    private static double EPS = Double.MIN_NORMAL;
 
     /*
         See http://e-maxx.ru/algo/circle_line_intersection
@@ -31,7 +31,7 @@ public class MathUtils {
             double mult = Math.sqrt(d / a2b2);
             Point point1 = new Point(x0 + lineEq.b * mult, y0 - lineEq.a * mult);
             Point point2 = new Point(x0 - lineEq.b * mult, y0 + lineEq.a * mult);
-            if (isPointBetween(point1, lp1, lp2)) {
+            if (isPointOk(point1, circleCenter)) {
                 finalPoint = point1;
             } else {
                 finalPoint = point2;
@@ -41,11 +41,9 @@ public class MathUtils {
         return finalPoint.plus(circleCenter);
     }
 
-    public static boolean isPointBetween(Point testPoint, Point a, Point b) {
-        return testPoint.getX() >= Math.min(a.getX(), b.getX())
-                && testPoint.getX() <= Math.max(a.getX(), b.getX())
-                && testPoint.getY() >= Math.min(a.getY(), b.getY())
-                && testPoint.getY() <= Math.max(a.getY(), b.getY());
+    public static boolean isPointOk(Point testPoint, Point circleCenter) {
+        double x = testPoint.plus(circleCenter).getX();
+        return x >= 0 && x <=1;
     }
 
     public static LineEq getLineEqFrom2Points(Point a, Point b) {
@@ -57,7 +55,12 @@ public class MathUtils {
 
     public static Point mirrorVec(Point vec, Point mirrorA, Point mirrorB) {
         Point norm = new Point(mirrorA.getY() - mirrorB.getY(), mirrorB.getX() - mirrorA.getX());
-        return vec.minus(norm.mult(2 * vec.dot(norm) / norm.dot(norm)));
+        return vec.minus(norm.mult(2 * vec.dot(norm) / norm.dot(norm))).mult(-1);
+    }
+
+    public static boolean pointInCircle(Point center, double radius, Point point) {
+        return Math.pow(point.getX() - center.getX(), 2) + Math.pow(point.getY() - center.getY(), 2)
+                <= Math.pow(radius, 2);
     }
 
     public record LineEq(double a, double b, double c) {}
