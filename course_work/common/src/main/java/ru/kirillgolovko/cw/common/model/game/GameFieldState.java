@@ -1,4 +1,4 @@
-package ru.kirillgolovko.cw.common.model;
+package ru.kirillgolovko.cw.common.model.game;
 
 /**
  * @author kirillgolovko

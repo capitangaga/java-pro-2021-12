@@ -2,8 +2,8 @@ package ru.kirillgolovko.cw.common.game.client;
 
 import java.util.function.Consumer;
 
-import ru.kirillgolovko.cw.common.model.GameFieldState;
-import ru.kirillgolovko.cw.common.model.KeyboardEvent;
+import ru.kirillgolovko.cw.common.model.game.GameFieldState;
+import ru.kirillgolovko.cw.common.model.game.KeyboardEvent;
 
 /**
  * @author kirillgolovko

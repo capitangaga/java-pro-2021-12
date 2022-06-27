@@ -1,16 +1,6 @@
 package ru.kirillgolovko.otus.cw.client;
 
 import java.io.IOException;
-import java.util.List;
-
-import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
-import com.googlecode.lanterna.terminal.Terminal;
-import org.springframework.web.util.UriComponentsBuilder;
-import ru.kirillgolovko.cw.common.game.server.GameServer;
-import ru.kirillgolovko.cw.common.game.server.GameServerSettings;
-import ru.kirillgolovko.cw.common.model.GameFieldState;
-import ru.kirillgolovko.cw.common.model.Point;
-import ru.kirillgolovko.otus.cw.client.cli.TerminalGame;
 
 /**
  * @author kirillgolovko

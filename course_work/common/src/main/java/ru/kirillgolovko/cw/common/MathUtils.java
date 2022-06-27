@@ -1,6 +1,6 @@
 package ru.kirillgolovko.cw.common;
 
-import ru.kirillgolovko.cw.common.model.Point;
+import ru.kirillgolovko.cw.common.model.game.Point;
 
 public class MathUtils {
     private static double EPS = Double.MIN_NORMAL;
@@ -64,8 +64,4 @@ public class MathUtils {
     }
 
     public record LineEq(double a, double b, double c) {}
-
-    public static void main(String[] args) {
-        System.out.println(mirrorVec(new Point(3, 4), new Point(0, 0), new Point(2, 1)));
-    }
 }

@@ -1,10 +1,9 @@
 package ru.kirillgolovko.otus.cw.gameserver.session;
 
-import org.slf4j.LoggerFactory;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import ru.kirillgolovko.cw.common.game.server.GameServer;
 import ru.kirillgolovko.cw.common.game.server.GameServerSettings;
-import ru.kirillgolovko.cw.common.model.KeyboardEvent;
+import ru.kirillgolovko.cw.common.model.game.KeyboardEvent;
 
 import java.util.logging.Logger;
 

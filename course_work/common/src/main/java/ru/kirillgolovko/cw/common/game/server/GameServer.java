@@ -7,10 +7,10 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import ru.kirillgolovko.cw.common.MathUtils;
 import ru.kirillgolovko.cw.common.Utils;
 import ru.kirillgolovko.cw.common.game.client.GameClient;
-import ru.kirillgolovko.cw.common.model.GameFieldState;
-import ru.kirillgolovko.cw.common.model.KeyboardEvent;
-import ru.kirillgolovko.cw.common.model.KeyboardEventType;
-import ru.kirillgolovko.cw.common.model.Point;
+import ru.kirillgolovko.cw.common.model.game.GameFieldState;
+import ru.kirillgolovko.cw.common.model.game.KeyboardEvent;
+import ru.kirillgolovko.cw.common.model.game.KeyboardEventType;
+import ru.kirillgolovko.cw.common.model.game.Point;
 
 /**
  * @author kirillgolovko

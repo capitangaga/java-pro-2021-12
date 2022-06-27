@@ -7,7 +7,7 @@ import org.springframework.messaging.simp.stomp.StompHeaders;
 import org.springframework.messaging.simp.stomp.StompSession;
 import org.springframework.messaging.simp.stomp.StompSessionHandler;
 import ru.kirillgolovko.cw.common.game.client.GameClient;
-import ru.kirillgolovko.cw.common.model.GameFieldState;
+import ru.kirillgolovko.cw.common.model.game.GameFieldState;
 
 /**
  * @author kirillgolovko

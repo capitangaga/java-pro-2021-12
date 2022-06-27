@@ -17,10 +17,10 @@ import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
 import com.googlecode.lanterna.terminal.Terminal;
 import ru.kirillgolovko.cw.common.game.client.GameClient;
-import ru.kirillgolovko.cw.common.model.GameFieldState;
-import ru.kirillgolovko.cw.common.model.Point;
-import ru.kirillgolovko.cw.common.model.KeyboardEvent;
-import ru.kirillgolovko.cw.common.model.KeyboardEventType;
+import ru.kirillgolovko.cw.common.model.game.GameFieldState;
+import ru.kirillgolovko.cw.common.model.game.Point;
+import ru.kirillgolovko.cw.common.model.game.KeyboardEvent;
+import ru.kirillgolovko.cw.common.model.game.KeyboardEventType;
 
 
 /**
