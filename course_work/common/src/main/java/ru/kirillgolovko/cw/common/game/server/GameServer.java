@@ -35,9 +35,7 @@ public class GameServer extends Thread {
     private int rightScore = 0;
     private int leftScore = 0;
 
-    private long lastCall;
-
-
+    private long gameStatTs;
 
     public GameServer(
             GameClient leftClient,
@@ -60,6 +58,7 @@ public class GameServer extends Thread {
         rightClient.addKeyboardEventsConsumer(event -> rightClientEvents.add(event));
         leftClient.startGame();
         rightClient.startGame();
+        gameStatTs = System.currentTimeMillis();
     }
 
     public void shutdown() {
@@ -148,14 +147,32 @@ public class GameServer extends Thread {
 
     @Override
     public void run() {
-        lastCall = System.currentTimeMillis();
+        long lastCall = System.currentTimeMillis();
         while (!Thread.currentThread().isInterrupted()) {
             leftHandlePos = calcNewHandlePosition(leftClientEvents, leftHandlePos);
             rightHandlePos = calcNewHandlePosition(rightClientEvents, rightHandlePos);
             long now = System.currentTimeMillis();
             moveBall(lastCall, now);
             lastCall = now;
-            GameFieldState nextState = new GameFieldState(ballPosition, leftHandlePos, rightHandlePos, leftScore, rightScore);
+
+            long remainingTime = gameServerSettings.matchLength - (now - gameStatTs);
+            boolean gameIsOver = remainingTime < 0;
+
+            GameFieldState nextState = new GameFieldState(
+                    ballPosition,
+                    leftHandlePos,
+                    rightHandlePos,
+                    leftScore,
+                    rightScore,
+                    remainingTime,
+                    gameIsOver,
+                    "");
+
+            if (gameIsOver) {
+                processGameOver(nextState);
+                break;
+            }
+
             leftClient.updateFieldState(nextState);
             rightClient.updateFieldState(nextState);
             try {
@@ -164,6 +181,25 @@ public class GameServer extends Thread {
                 e.printStackTrace();
             }
         }
+    }
+
+    private void processGameOver(GameFieldState gameFieldState) {
+        GameFieldState leftState = gameFieldState.withGameOverMessage(getGameOverMessage(leftScore, rightScore));
+        leftClient.updateFieldState(leftState);
+        GameFieldState rightState = gameFieldState.withGameOverMessage(getGameOverMessage(rightScore, leftScore));
+        rightClient.updateFieldState(rightState);
+    }
+
+    private String getGameOverMessage(int thisScore, int otherScore) {
+        String verdict;
+        if (thisScore == otherScore) {
+            verdict = "Draw.";
+        } else if (thisScore < otherScore) {
+            verdict = "You lost(";
+        } else {
+            verdict = "You won!";
+        }
+        return verdict + String.format("Your score: %s, opponent score: %s", thisScore, otherScore);
     }
 
 

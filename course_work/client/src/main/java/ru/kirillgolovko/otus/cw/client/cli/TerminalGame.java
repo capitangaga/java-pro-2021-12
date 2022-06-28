@@ -12,6 +12,9 @@ import com.googlecode.lanterna.TerminalPosition;
 import com.googlecode.lanterna.TerminalSize;
 import com.googlecode.lanterna.TextColor;
 import com.googlecode.lanterna.graphics.TextGraphics;
+import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
+import com.googlecode.lanterna.gui2.WindowBasedTextGUI;
+import com.googlecode.lanterna.gui2.dialogs.MessageDialog;
 import com.googlecode.lanterna.input.KeyStroke;
 import com.googlecode.lanterna.screen.Screen;
 import com.googlecode.lanterna.screen.TerminalScreen;
@@ -56,7 +59,6 @@ public class TerminalGame implements GameClient {
 
     @Override
     public void stopGame() {
-        drawingThread.interrupt();
         keysPublisherThread.interrupt();
         keysCallbacksThread.interrupt();
     }
@@ -106,7 +108,6 @@ public class TerminalGame implements GameClient {
                     consumers.forEach(consumer -> consumer.accept(nextEvent));
                 }
             } catch (InterruptedException ex) {
-                ex.printStackTrace();
             }
         });
     }
@@ -122,6 +123,10 @@ public class TerminalGame implements GameClient {
                         GameFieldState lastState = fieldStateQueue.take();
                         TerminalSize terminalSize = screen.getTerminalSize();
 
+                        if (lastState.isGameIsOver()) {
+                            processGameOver(screen, lastState);
+                            break;
+                        }
                         convertToTerminalCoordinates(terminalSize, lastState.getBallPosition());
                         screen.clear();
 
@@ -163,7 +168,13 @@ public class TerminalGame implements GameClient {
     }
 
     private static void drawScore(TextGraphics textGraphics, GameFieldState gameFieldState) {
-        textGraphics.putString(TerminalPosition.TOP_LEFT_CORNER, String.format("Score: %d : %d", gameFieldState.getLeftScore(), gameFieldState.getRightScore()));
+        textGraphics.putString(
+                TerminalPosition.TOP_LEFT_CORNER,
+                String.format(
+                        "Score: %d : %d, remaining time %d",
+                        gameFieldState.getLeftScore(),
+                        gameFieldState.getRightScore(),
+                        gameFieldState.getRemainingTime()));
     }
 
     private static TerminalPosition convertToTerminalCoordinates(TerminalSize terminalSize, Point point) {
@@ -174,6 +185,12 @@ public class TerminalGame implements GameClient {
         int newY = (int) (1 + Math.round(tHeight * (1 - point.getY())));
 
         return new TerminalPosition(newX, newY);
+    }
+
+    private static void processGameOver(Screen screen, GameFieldState gameFieldState) {
+        final WindowBasedTextGUI textGUI = new MultiWindowTextGUI(screen);
+        MessageDialog.showMessageDialog(textGUI, "Game is over",  gameFieldState.getGameOverMessage());
+        System.out.println("Ok");
     }
 
 }

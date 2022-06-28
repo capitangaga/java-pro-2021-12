@@ -32,10 +32,10 @@ public class TestConnection {
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
         stompClient.setMessageConverter(new MappingJackson2MessageConverter());
 
-        String session = "1";
+        String session = Long.toString(System.currentTimeMillis());
 
-        stompClient.connect(CONNECT_URL, new StompClientConnector(rightGame, "1", "r"), session, "r");
-        stompClient.connect(CONNECT_URL, new StompClientConnector(leftGame, "1", "l"), session, "l");
+        stompClient.connect(CONNECT_URL, new StompClientConnector(rightGame, session, "r"), session, "r");
+        stompClient.connect(CONNECT_URL, new StompClientConnector(leftGame, session, "l"), session, "l");
 //        Thread.sleep(100000);
     }
 }

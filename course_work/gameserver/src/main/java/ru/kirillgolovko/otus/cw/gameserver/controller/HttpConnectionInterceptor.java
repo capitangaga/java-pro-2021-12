@@ -37,6 +37,7 @@ public class HttpConnectionInterceptor implements HandshakeInterceptor {
         if (gameSessionsService != null) {
             gameSessionsService.getOrCreateSession(sessionId).connectClient(side);
         }
+        System.out.println("Connected : " + sessionId + "/" + side);
         return true;
     }
 
