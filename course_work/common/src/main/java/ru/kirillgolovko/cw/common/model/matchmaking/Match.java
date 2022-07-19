@@ -20,4 +20,12 @@ public class Match {
     public String getSide() {
         return side;
     }
+
+    @Override
+    public String toString() {
+        return "Match{" +
+                "sessionId='" + sessionId + '\'' +
+                ", side='" + side + '\'' +
+                '}';
+    }
 }

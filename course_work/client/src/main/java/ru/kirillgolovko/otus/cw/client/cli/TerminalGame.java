@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.BlockingDeque;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
 import java.util.function.Consumer;
 
@@ -39,19 +40,28 @@ public class TerminalGame implements GameClient {
     private final BlockingDeque<GameFieldState> fieldStateQueue;
 
     private final List<Consumer<KeyboardEvent>> keyboardEventConsumers;
+    private final Terminal terminal;
+    private final CountDownLatch gameOverLatch;
 
     public TerminalGame (Terminal terminal) {
+        this.terminal = terminal;
+        gameOverLatch = new CountDownLatch(1);
         keyboardEventsQueue = new LinkedBlockingDeque<>(1000);
         fieldStateQueue = new LinkedBlockingDeque<>(1000);
         keyboardEventConsumers = new ArrayList<>();
 
         keysPublisherThread = getKeyStrokePublisherThread(keyboardEventsQueue, terminal);
         keysCallbacksThread = getKeyboardCallbackThread(keyboardEventsQueue, keyboardEventConsumers);
-        drawingThread = getDrawingThread(fieldStateQueue, terminal);
+        drawingThread = getDrawingThread(fieldStateQueue, terminal, gameOverLatch);
     }
 
     @Override
     public void startGame() {
+        try {
+            terminal.clearScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         keysCallbacksThread.start();
         keysPublisherThread.start();
         drawingThread.start();
@@ -76,6 +86,10 @@ public class TerminalGame implements GameClient {
     @Override
     public boolean updateFieldState(GameFieldState gameFieldState) {
         return fieldStateQueue.offer(gameFieldState);
+    }
+
+    public void join() throws InterruptedException {
+        gameOverLatch.await();
     }
 
     private static Thread getKeyStrokePublisherThread(BlockingDeque<KeyboardEvent> publishingQueue, Terminal terminal) {
@@ -112,7 +126,11 @@ public class TerminalGame implements GameClient {
         });
     }
 
-    private static Thread getDrawingThread(BlockingDeque<GameFieldState> fieldStateQueue, Terminal terminal) {
+    private static Thread getDrawingThread(
+            BlockingDeque<GameFieldState> fieldStateQueue,
+            Terminal terminal,
+            CountDownLatch gameOverLatch)
+    {
         try {
             Screen screen = new TerminalScreen(terminal);
             screen.startScreen();
@@ -125,6 +143,7 @@ public class TerminalGame implements GameClient {
 
                         if (lastState.isGameIsOver()) {
                             processGameOver(screen, lastState);
+                            gameOverLatch.countDown();
                             break;
                         }
                         convertToTerminalCoordinates(terminalSize, lastState.getBallPosition());
@@ -190,7 +209,6 @@ public class TerminalGame implements GameClient {
     private static void processGameOver(Screen screen, GameFieldState gameFieldState) {
         final WindowBasedTextGUI textGUI = new MultiWindowTextGUI(screen);
         MessageDialog.showMessageDialog(textGUI, "Game is over",  gameFieldState.getGameOverMessage());
-        System.out.println("Ok");
     }
 
 }
