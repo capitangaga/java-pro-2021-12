@@ -5,6 +5,8 @@ import ru.kirillgolovko.cw.common.game.server.GameServer;
 import ru.kirillgolovko.cw.common.game.server.GameServerSettings;
 import ru.kirillgolovko.cw.common.model.game.KeyboardEvent;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.logging.Logger;
 
 /**
@@ -16,6 +18,7 @@ public class GameSession {
     private final RemoteClientConnector rightClient;
     private final RemoteClientConnector leftClient;
     private final GameServer gameServer;
+    private final Instant createdAt;
 
     private volatile boolean leftConnected = false;
     private volatile boolean rightConnected = false;
@@ -26,6 +29,7 @@ public class GameSession {
         this.leftClient = new RemoteClientConnector("/topic/state/" + sessionId + '/' + "l", simp);
         this.gameServer = new GameServer(leftClient, rightClient, sessionId, GameServerSettings.DEFAULT_SETTINGS);
         logger.info("Created session " + sessionId);
+        this.createdAt = Instant.now();
     }
 
     public synchronized void connectClient(String side) {
@@ -53,6 +57,7 @@ public class GameSession {
     }
 
     public boolean isFinished() {
-        return gameServer.getState().equals(Thread.State.TERMINATED);
+        return gameServer.getState().equals(Thread.State.TERMINATED)
+                || Duration.between(createdAt, Instant.now()).toMillis() > (10 * 60 * 1000);
     }
 }

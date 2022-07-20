@@ -4,11 +4,8 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.graphics.TextGraphics;
 import com.googlecode.lanterna.gui2.BasicWindow;
 import com.googlecode.lanterna.gui2.Label;
 import com.googlecode.lanterna.gui2.MultiWindowTextGUI;
@@ -75,21 +72,24 @@ public class GameLoop {
                     terminal,
                     match.get().getMatch().getSide().equals("l") ? username : match.get().getMatch().getOpponentName(),
                     match.get().getMatch().getSide().equals("l") ? match.get().getMatch().getOpponentName() : username);
-            ListenableFuture<StompSession> connection = stompClient.connect(
-                    String.format(CONNECT_URL, match.get().getGameHost()),
-                    new StompClientConnector(
-                            terminalGame,
-                            match.get().getMatch().getSessionId(),
-                            match.get().getMatch().getSide()),
-                    match.get().getMatch().getSessionId(),
-                    match.get().getMatch().getSide()
-            );
             try {
-                terminalGame.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+                ListenableFuture<StompSession> connection = stompClient.connect(
+                        String.format(CONNECT_URL, match.get().getGameHost()),
+                        new StompClientConnector(
+                                terminalGame,
+                                match.get().getMatch().getSessionId(),
+                                match.get().getMatch().getSide()),
+                        match.get().getMatch().getSessionId(),
+                        match.get().getMatch().getSide());
+                try {
+                    terminalGame.join();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                terminalGame.stopGame();
+            } catch (Exception ex) {
+                showMessageWithButton(textGUI, "Game server connection failed", "Try again!");
             }
-            terminalGame.stopGame();
         }
     }
 

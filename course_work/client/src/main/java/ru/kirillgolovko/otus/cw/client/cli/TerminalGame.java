@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 import com.googlecode.lanterna.TerminalPosition;
@@ -148,11 +149,16 @@ public class TerminalGame implements GameClient {
             return new Thread(() -> {
                 while (!Thread.currentThread().isInterrupted()) {
                     try {
-                        GameFieldState lastState = fieldStateQueue.take();
+                        GameFieldState lastState = fieldStateQueue.pollLast(30, TimeUnit.SECONDS);
                         TerminalSize terminalSize = screen.getTerminalSize();
+                        if (lastState == null) {
+                            processGameOver(screen, "Server disconnected");
+                            gameOverLatch.countDown();
+                            break;
+                        }
 
                         if (lastState.isGameIsOver()) {
-                            processGameOver(screen, lastState);
+                            processGameOver(screen, lastState.getGameOverMessage());
                             gameOverLatch.countDown();
                             break;
                         }
@@ -169,16 +175,13 @@ public class TerminalGame implements GameClient {
                         Thread.yield();
                     } catch (InterruptedException | IOException ex) {
                         processGameOver(
-                                screen,
-                                new GameFieldState(null, 0, 0, 0, 0, 0, true, "You exited this session. Will find a new one"));
+                                screen, "You exited this session. Will find a new one");
                         gameOverLatch.countDown();
                         return;
                     }
                 }
                 if (Thread.currentThread().isInterrupted()) {
-                    processGameOver(
-                            screen,
-                            new GameFieldState(null, 0, 0, 0, 0, 0, true, "You exited this session. Will find a new one"));
+                    processGameOver(screen, "You exited this session. Will find a new one");
                     gameOverLatch.countDown();
                 }
             });
@@ -232,9 +235,9 @@ public class TerminalGame implements GameClient {
         return new TerminalPosition(newX, newY);
     }
 
-    private static void processGameOver(Screen screen, GameFieldState gameFieldState) {
+    private static void processGameOver(Screen screen, String message) {
         final WindowBasedTextGUI textGUI = new MultiWindowTextGUI(screen);
-        MessageDialog.showMessageDialog(textGUI, "Game is over",  gameFieldState.getGameOverMessage());
+        MessageDialog.showMessageDialog(textGUI, "Game is over", message);
     }
 
 }
