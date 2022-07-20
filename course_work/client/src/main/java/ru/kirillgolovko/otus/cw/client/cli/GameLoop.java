@@ -71,7 +71,10 @@ public class GameLoop {
                 continue;
             }
 
-            TerminalGame terminalGame = new TerminalGame(terminal);
+            TerminalGame terminalGame = new TerminalGame(
+                    terminal,
+                    match.get().getMatch().getSide().equals("l") ? username : match.get().getMatch().getOpponentName(),
+                    match.get().getMatch().getSide().equals("l") ? match.get().getMatch().getOpponentName() : username);
             ListenableFuture<StompSession> connection = stompClient.connect(
                     String.format(CONNECT_URL, match.get().getGameHost()),
                     new StompClientConnector(

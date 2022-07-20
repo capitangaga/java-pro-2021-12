@@ -43,16 +43,17 @@ public class TerminalGame implements GameClient {
     private final Terminal terminal;
     private final CountDownLatch gameOverLatch;
 
-    public TerminalGame (Terminal terminal) {
+    public TerminalGame (Terminal terminal, String leftName, String rightName) {
         this.terminal = terminal;
         gameOverLatch = new CountDownLatch(1);
         keyboardEventsQueue = new LinkedBlockingDeque<>(1000);
         fieldStateQueue = new LinkedBlockingDeque<>(1000);
         keyboardEventConsumers = new ArrayList<>();
 
-        keysPublisherThread = getKeyStrokePublisherThread(keyboardEventsQueue, terminal);
+        drawingThread = getDrawingThread(fieldStateQueue, terminal, gameOverLatch, leftName, rightName);
+        keysPublisherThread = getKeyStrokePublisherThread(keyboardEventsQueue, drawingThread, terminal);
         keysCallbacksThread = getKeyboardCallbackThread(keyboardEventsQueue, keyboardEventConsumers);
-        drawingThread = getDrawingThread(fieldStateQueue, terminal, gameOverLatch);
+
     }
 
     @Override
@@ -92,7 +93,7 @@ public class TerminalGame implements GameClient {
         gameOverLatch.await();
     }
 
-    private static Thread getKeyStrokePublisherThread(BlockingDeque<KeyboardEvent> publishingQueue, Terminal terminal) {
+    private static Thread getKeyStrokePublisherThread(BlockingDeque<KeyboardEvent> publishingQueue, Thread drawingThread, Terminal terminal) {
         return new Thread(() -> {
             try {
                 while (!Thread.currentThread().isInterrupted()) {
@@ -101,9 +102,13 @@ public class TerminalGame implements GameClient {
                     Optional<KeyboardEvent> event = switch (keyStroke.getKeyType()) {
                         case ArrowUp -> Optional.of(new KeyboardEvent(time, KeyboardEventType.ARROW_UP));
                         case ArrowDown -> Optional.of(new KeyboardEvent(time, KeyboardEventType.ARROW_DOWN));
+                        case Escape -> Optional.of(new KeyboardEvent(time, KeyboardEventType.ESC));
                         default -> Optional.empty();
                     };
                     event.ifPresent(publishingQueue::add);
+                    if (event.isPresent() && event.get().getEventType().equals(KeyboardEventType.ESC)) {
+                        drawingThread.interrupt();
+                    }
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -122,6 +127,9 @@ public class TerminalGame implements GameClient {
                     consumers.forEach(consumer -> consumer.accept(nextEvent));
                 }
             } catch (InterruptedException ex) {
+                List<KeyboardEvent> lastEvents = new ArrayList<>();
+                publishingQueue.drainTo(lastEvents);
+                consumers.forEach(consumer -> lastEvents.forEach(consumer::accept));
             }
         });
     }
@@ -129,7 +137,9 @@ public class TerminalGame implements GameClient {
     private static Thread getDrawingThread(
             BlockingDeque<GameFieldState> fieldStateQueue,
             Terminal terminal,
-            CountDownLatch gameOverLatch)
+            CountDownLatch gameOverLatch,
+            String leftName,
+            String rightName)
     {
         try {
             Screen screen = new TerminalScreen(terminal);
@@ -151,16 +161,25 @@ public class TerminalGame implements GameClient {
 
                         drawBall(terminalSize, textGraphics, lastState);
                         drawPads(terminalSize, textGraphics, lastState);
-                        drawScore(textGraphics, lastState);
+                        drawScore(textGraphics, lastState, leftName, rightName);
 
                         screen.refresh(Screen.RefreshType.COMPLETE);
 
 
                         Thread.yield();
                     } catch (InterruptedException | IOException ex) {
-                        throw new RuntimeException(ex);
+                        processGameOver(
+                                screen,
+                                new GameFieldState(null, 0, 0, 0, 0, 0, true, "You exited this session. Will find a new one"));
+                        gameOverLatch.countDown();
+                        return;
                     }
-
+                }
+                if (Thread.currentThread().isInterrupted()) {
+                    processGameOver(
+                            screen,
+                            new GameFieldState(null, 0, 0, 0, 0, 0, true, "You exited this session. Will find a new one"));
+                    gameOverLatch.countDown();
                 }
             });
         } catch (IOException ex) {
@@ -186,13 +205,20 @@ public class TerminalGame implements GameClient {
         graphics.setForegroundColor(TextColor.ANSI.WHITE);
     }
 
-    private static void drawScore(TextGraphics textGraphics, GameFieldState gameFieldState) {
+    private static void drawScore(
+            TextGraphics textGraphics,
+            GameFieldState gameFieldState,
+            String leftName,
+            String rightName)
+    {
         textGraphics.putString(
                 TerminalPosition.TOP_LEFT_CORNER,
                 String.format(
-                        "Score: %d : %d, remaining time %d",
+                        "Score: %s %d : %d %s, remaining time %d",
+                        leftName,
                         gameFieldState.getLeftScore(),
                         gameFieldState.getRightScore(),
+                        rightName,
                         gameFieldState.getRemainingTime()));
     }
 

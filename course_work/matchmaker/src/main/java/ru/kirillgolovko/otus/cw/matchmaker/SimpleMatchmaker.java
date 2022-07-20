@@ -25,9 +25,10 @@ public class SimpleMatchmaker implements Matchmaker {
 
         if (waitingUser != null) {
             String sessionId = r.nextLong(Long.MAX_VALUE) + "_" + System.currentTimeMillis();
-            madeMatches.put(waitingUser, new Match(sessionId, "r"));
+            madeMatches.put(waitingUser, new Match(sessionId, "r", username));
+            String user = waitingUser;
             waitingUser = null;
-            return Optional.of(new Match(sessionId, "l"));
+            return Optional.of(new Match(sessionId, "l", user));
         }
 
         waitingUser = username;

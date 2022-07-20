@@ -24,8 +24,8 @@ public class TestConnection {
         DefaultTerminalFactory defaultTerminalFactory = new DefaultTerminalFactory();
         Terminal left = defaultTerminalFactory.createTerminal();
         Terminal right = defaultTerminalFactory.createTerminal();
-        TerminalGame leftGame = new TerminalGame(left);
-        TerminalGame rightGame = new TerminalGame(right);
+        TerminalGame leftGame = new TerminalGame(left, "a", "b");
+        TerminalGame rightGame = new TerminalGame(right, "a", "b");
 
         WebSocketClient client = new StandardWebSocketClient();
 

@@ -1,6 +1,7 @@
 package ru.kirillgolovko.cw.common.game.server;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -66,16 +67,15 @@ public class GameServer extends Thread {
         rightClient.stopGame();
     }
 
-    private double calcNewHandlePosition(ConcurrentLinkedQueue<KeyboardEvent> queue, double previousPosition) {
-        List<KeyboardEvent> keyboardEvents = Utils.readAllFromQueueLimited(queue, 1000);
+    private double calcNewHandlePosition(List<KeyboardEvent> keyboardEvents, double previousPosition) {
         if (keyboardEvents.isEmpty()) {
             return previousPosition;
         }
         // отматываем чуть назад, даем zeroEventOffset мс на потупить laternе
         long prevEventTs = keyboardEvents.get(0).getMillis() - gameServerSettings.zeroEventOffset;
         double delta = 0;
-        for(var keyboardEvent : keyboardEvents) {
-             delta += (keyboardEvent.getEventType().equals(KeyboardEventType.ARROW_UP) ? 1 : -1)
+        for (var keyboardEvent : keyboardEvents) {
+            delta += (keyboardEvent.getEventType().equals(KeyboardEventType.ARROW_UP) ? 1 : -1)
                     * (keyboardEvent.getMillis() - prevEventTs)
                     * gameServerSettings.handleSpeed;
             prevEventTs = keyboardEvent.getMillis();
@@ -149,14 +149,20 @@ public class GameServer extends Thread {
     public void run() {
         long lastCall = System.currentTimeMillis();
         while (!Thread.currentThread().isInterrupted()) {
-            leftHandlePos = calcNewHandlePosition(leftClientEvents, leftHandlePos);
-            rightHandlePos = calcNewHandlePosition(rightClientEvents, rightHandlePos);
+
+            List<KeyboardEvent> nextLeftEvents = Utils.readAllFromQueueLimited(leftClientEvents, 1000);
+            List<KeyboardEvent> nextRightEvents =  Utils.readAllFromQueueLimited(rightClientEvents, 1000);
+
+            leftHandlePos = calcNewHandlePosition(nextLeftEvents, leftHandlePos);
+            rightHandlePos = calcNewHandlePosition(nextRightEvents, rightHandlePos);
             long now = System.currentTimeMillis();
             moveBall(lastCall, now);
             lastCall = now;
 
             long remainingTime = gameServerSettings.matchLength - (now - gameStatTs);
-            boolean gameIsOver = remainingTime < 0;
+
+            boolean leftGame = leftGame(nextRightEvents, nextLeftEvents);
+            boolean gameIsOver = remainingTime < 0 || leftGame;
 
             GameFieldState nextState = new GameFieldState(
                     ballPosition,
@@ -169,7 +175,8 @@ public class GameServer extends Thread {
                     "");
 
             if (gameIsOver) {
-                processGameOver(nextState);
+                processGameOver(nextState, leftGame);
+                shutdown();
                 break;
             }
 
@@ -183,14 +190,17 @@ public class GameServer extends Thread {
         }
     }
 
-    private void processGameOver(GameFieldState gameFieldState) {
-        GameFieldState leftState = gameFieldState.withGameOverMessage(getGameOverMessage(leftScore, rightScore));
+    private void processGameOver(GameFieldState gameFieldState, boolean leftGame) {
+        GameFieldState leftState = gameFieldState.withGameOverMessage(getGameOverMessage(leftScore, rightScore, leftGame));
         leftClient.updateFieldState(leftState);
-        GameFieldState rightState = gameFieldState.withGameOverMessage(getGameOverMessage(rightScore, leftScore));
+        GameFieldState rightState = gameFieldState.withGameOverMessage(getGameOverMessage(rightScore, leftScore, leftGame));
         rightClient.updateFieldState(rightState);
     }
 
-    private String getGameOverMessage(int thisScore, int otherScore) {
+    private String getGameOverMessage(int thisScore, int otherScore, boolean leftGame) {
+        if (leftGame) {
+            return "Opponent left the game";
+        }
         String verdict;
         if (thisScore == otherScore) {
             verdict = "Draw.";
@@ -202,5 +212,10 @@ public class GameServer extends Thread {
         return verdict + String.format("Your score: %s, opponent score: %s", thisScore, otherScore);
     }
 
-
+    private static boolean leftGame(List<KeyboardEvent> rightEvents, List<KeyboardEvent> leftEvents) {
+        return rightEvents.stream().anyMatch(keyboardEvent ->
+                keyboardEvent.getEventType().equals(KeyboardEventType.ESC))
+                || leftEvents.stream().anyMatch(keyboardEvent ->
+                keyboardEvent.getEventType().equals(KeyboardEventType.ESC));
+    }
 }

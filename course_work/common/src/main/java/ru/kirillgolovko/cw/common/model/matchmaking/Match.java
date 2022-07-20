@@ -3,14 +3,16 @@ package ru.kirillgolovko.cw.common.model.matchmaking;
 public class Match {
     private final String sessionId;
     private final String side;
+    private final String opponentName;
 
-    public Match(String sessionId, String side) {
+    public Match(String sessionId, String side, String opponentName) {
         this.sessionId = sessionId;
         this.side = side;
+        this.opponentName = opponentName;
     }
 
     public Match() {
-        this(null, null);
+        this(null, null, null);
     }
 
     public String getSessionId() {
@@ -21,11 +23,16 @@ public class Match {
         return side;
     }
 
+    public String getOpponentName() {
+        return opponentName;
+    }
+
     @Override
     public String toString() {
         return "Match{" +
                 "sessionId='" + sessionId + '\'' +
                 ", side='" + side + '\'' +
+                ", opponentName='" + opponentName + '\'' +
                 '}';
     }
 }

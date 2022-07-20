@@ -5,5 +5,6 @@ package ru.kirillgolovko.cw.common.model.game;
  */
 public enum KeyboardEventType {
     ARROW_UP,
-    ARROW_DOWN
+    ARROW_DOWN,
+    ESC
 }
