@@ -1,4 +1,4 @@
-package ru.kirillgolovko.cw.common;
+package ru.kirillgolovko.cw.common.utils;
 
 import ru.kirillgolovko.cw.common.model.game.Point;
 

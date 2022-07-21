@@ -1,12 +1,11 @@
 package ru.kirillgolovko.cw.common.game.server;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-import ru.kirillgolovko.cw.common.MathUtils;
-import ru.kirillgolovko.cw.common.Utils;
+import ru.kirillgolovko.cw.common.utils.MathUtils;
+import ru.kirillgolovko.cw.common.utils.Utils;
 import ru.kirillgolovko.cw.common.game.client.GameClient;
 import ru.kirillgolovko.cw.common.model.game.GameFieldState;
 import ru.kirillgolovko.cw.common.model.game.KeyboardEvent;

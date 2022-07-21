@@ -1,4 +1,4 @@
-package ru.kirillgolovko.cw.common;
+package ru.kirillgolovko.cw.common.utils;
 
 import java.util.ArrayList;
 import java.util.List;
