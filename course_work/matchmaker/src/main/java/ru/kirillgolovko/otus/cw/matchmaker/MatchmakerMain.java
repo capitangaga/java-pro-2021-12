@@ -1,14 +1,11 @@
-package ru.kirillgolovko.otus.cw.gameserver;
+package ru.kirillgolovko.otus.cw.matchmaker;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
-/**
- * @author kirillgolovko
- */
 @SpringBootApplication
-public class Main {
+public class MatchmakerMain {
     public static void main(String[] args) {
-        SpringApplication.run(Main.class, args);
+        SpringApplication.run(MatchmakerMain.class, args);
     }
 }

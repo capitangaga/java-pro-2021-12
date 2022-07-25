@@ -2,6 +2,8 @@ package ru.kirillgolovko.otus.cw.client;
 
 import com.googlecode.lanterna.terminal.DefaultTerminalFactory;
 import com.googlecode.lanterna.terminal.Terminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminal;
+import com.googlecode.lanterna.terminal.swing.SwingTerminalFrame;
 import org.springframework.messaging.converter.MappingJackson2MessageConverter;
 import org.springframework.web.socket.client.WebSocketClient;
 import org.springframework.web.socket.client.standard.StandardWebSocketClient;
@@ -19,6 +21,7 @@ import java.io.IOException;
 public class GameMain {
     public static void main(String[] args) throws IOException{
         Terminal terminal = new DefaultTerminalFactory().createTerminal();
+        ((SwingTerminalFrame) terminal).setTitle("PONG ONLINE");
         WebSocketClient client = new StandardWebSocketClient();
 
         WebSocketStompClient stompClient = new WebSocketStompClient(client);
